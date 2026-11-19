@@ -1,0 +1,537 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CodeNest Playground</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: slim nav, a headline over a full-width editor and output playground, then course, path, project and contact sections. */
+:root{
+  --bg:#F4F6FA; --surface:#FFFFFF; --ink:#101828; --muted:#475467; --line:#D8DEE9;
+  --accent:#2F5BFF; --on-accent:#FFFFFF; --tint:#E6ECFF; --field:#8A94A6;
+  --code-bg:#101828; --code-fg:#E6EAF2; --code-muted:#9AA6BD; --code-line:#2A3650;
+  --amber:#FFB020; --ok:#5EE0A0; --bad:#FF9A9A;
+  --band-bg:#101828; --band-fg:#F4F6FA; --band-muted:#AAB4C8;
+  --display:'Space Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace; --text:Inter,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1220; --surface:#121A2B; --ink:#E8ECF4; --muted:#A3AEC2; --line:#26324A;
+    --accent:#8FA8FF; --on-accent:#0B1220; --tint:#1B2750; --field:#5B6B88;
+    --code-bg:#070C16; --code-fg:#E6EAF2; --code-muted:#9AA6BD; --code-line:#26324A;
+    --band-bg:#070C16; --band-fg:#E8ECF4; --band-muted:#A3AEC2;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#121A2B; --ink:#E8ECF4; --muted:#A3AEC2; --line:#26324A;
+  --accent:#8FA8FF; --on-accent:#0B1220; --tint:#1B2750; --field:#5B6B88;
+  --code-bg:#070C16; --code-fg:#E6EAF2; --code-muted:#9AA6BD; --code-line:#26324A;
+  --band-bg:#070C16; --band-fg:#E8ECF4; --band-muted:#A3AEC2;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--text);font-size:16px;line-height:1.6}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{padding-block:72px}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.h2{font-size:clamp(28px,4vw,40px);line-height:1.1;letter-spacing:-.02em}
+.lede{color:var(--muted);font-size:18px;max-width:640px}
+.sechead{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;border-radius:8px;border:1px solid transparent;font:inherit;font-weight:600;text-decoration:none;cursor:pointer;background:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--ink)}
+
+/* nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 28px;padding-block:14px}
+.logo{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.01em}
+.logo span{font-family:var(--mono);color:var(--accent)}
+.links{display:flex;flex-wrap:wrap;align-items:center;gap:4px 24px;font-size:15px;font-weight:500}
+.links a{color:var(--ink);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.links a.btn{color:var(--on-accent)}
+
+/* intro + playground */
+.intro{padding-top:48px;padding-bottom:20px}
+.intro h1{font-size:clamp(34px,5.5vw,56px);line-height:1.05;letter-spacing:-.025em;max-width:820px}
+.intro .wrap{display:flex;flex-direction:column;gap:16px}
+.pg{padding-bottom:64px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.chips .lbl{font-family:var(--mono);font-size:13px;color:var(--muted);margin-right:4px}
+.chip{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.ch{border-style:dashed}
+.task{display:flex;gap:12px;align-items:flex-start;background:var(--tint);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.task b{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.task[hidden]{display:none}
+.panes{display:flex;flex-wrap:wrap;gap:16px}
+.pane{flex:1 1 460px;min-width:0;background:var(--code-bg);color:var(--code-fg);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--code-line);font-family:var(--mono);font-size:13px;color:var(--code-muted)}
+.bar .acts{display:flex;gap:8px;align-items:center}
+.bar button{min-height:44px;font:inherit;font-family:var(--text);font-weight:600;font-size:14px;border-radius:8px;cursor:pointer;padding:0 16px}
+.run{background:var(--amber);color:#101828;border:0}
+.reset{background:transparent;color:var(--code-fg);border:1px solid var(--code-line)}
+.edit{display:flex;height:clamp(420px,70vh,640px)}
+.panes .pane:last-child{flex:1.4 1 480px}
+.panes.wide .pane{flex:1 1 100%}
+.panes.wide .edit{height:clamp(280px,40vh,420px)}
+.panes.wide #out{height:clamp(240px,35vh,400px)}
+.panes.wide #preview{height:clamp(560px,85vh,900px)}
+.pg .wrap{max-width:1600px}
+#gutter{flex:none;width:44px;overflow:hidden;padding:16px 8px 16px 0;margin:0;text-align:right;font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--code-muted);user-select:none;border-right:1px solid var(--code-line)}
+#code{flex:1;min-width:0;border:0;resize:none;background:transparent;color:var(--code-fg);font-family:var(--mono);font-size:14px;line-height:1.7;padding:16px;white-space:pre;overflow:auto;tab-size:2}
+#code:focus-visible{outline-offset:-2px}
+#out{flex:1;height:clamp(420px,70vh,640px);overflow:auto;padding:16px;font-family:var(--mono);font-size:14px;line-height:1.7;display:flex;flex-direction:column;gap:2px}
+#out div{white-space:pre-wrap;overflow-wrap:anywhere}
+#out .err{color:var(--bad)}
+#out .empty{color:var(--code-muted)}
+.verdict{padding:12px 16px;border-top:1px solid var(--code-line);font-family:var(--mono);font-size:13px;min-height:46px}
+.verdict.ok{color:var(--ok)}
+.verdict.bad{color:var(--bad)}
+.verdict.info{color:var(--code-muted)}
+#preview{flex:1;width:100%;height:clamp(420px,70vh,640px);border:0;background:#FFFFFF}
+#out[hidden],#preview[hidden]{display:none}
+.hint{margin-top:12px;font-size:14px;color:var(--muted)}
+
+/* courses, path, projects */
+.grid{display:grid;gap:20px}
+.g-courses{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g-path{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:32px}
+.g-proj{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card .tag{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--accent)}
+.card h3{font-size:24px;line-height:1.2;letter-spacing:-.01em}
+.card p{color:var(--muted)}
+.card .tools{font-family:var(--mono);font-size:13px}
+.card .foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;font-size:14px;color:var(--muted)}
+.path-band{background:var(--surface);border-block:1px solid var(--line)}
+.step{border-top:2px solid var(--ink);padding-top:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.step .top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--accent)}
+.step h3{font-size:22px}
+.step p{color:var(--muted)}
+.proj{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0}
+.proj .cmd{background:var(--code-bg);color:var(--amber);font-family:var(--mono);font-size:20px;padding:36px 24px;overflow-wrap:anywhere}
+.proj .body{padding:24px;display:flex;flex-direction:column;gap:10px}
+.proj .stack{font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* placements */
+.dark{background:var(--band-bg);color:var(--band-fg);padding-block:80px}
+.dark .cols{display:flex;flex-wrap:wrap;gap:56px}
+.dark .left{flex:1 1 460px;min-width:0;display:flex;flex-direction:column;gap:28px}
+.dark .right{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.perk{padding-bottom:18px;border-bottom:1px solid var(--code-line)}
+.perk b{display:block;font-size:18px}
+.perk span{color:var(--band-muted)}
+.stat{border:1px solid var(--code-line);border-radius:12px;padding:28px}
+.stat .n{font-family:var(--mono);font-size:36px;color:var(--amber)}
+.stat .t{color:var(--band-muted)}
+
+/* contact + footer */
+.contact .cols{display:flex;flex-wrap:wrap;gap:40px;align-items:center;justify-content:space-between}
+.contact .box{display:flex;flex-direction:column;gap:20px;flex:1 1 400px;min-width:0}
+.contact .info{flex:1 1 320px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:15px;overflow-wrap:anywhere}
+.foot-bar{background:var(--surface);border-top:1px solid var(--line);padding-block:32px;font-size:14px;color:var(--muted)}
+.foot-bar .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px}
+.foot-bar a{color:var(--muted)}
+.foot-bar .links{font-size:14px;font-weight:400}
+
+/* output page */
+#outputPage{padding-bottom:32px;min-height:100vh}
+#outputPage .wrap{max-width:1800px}
+.otop{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-block:16px}
+.otitle{font-family:var(--mono);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+#outHost{display:flex}
+#outHost .pane{flex:1 1 100%}
+#outputPage #preview{height:calc(100vh - 160px);min-height:520px}
+#outputPage #out{height:calc(100vh - 220px);min-height:400px}
+#outputPage #expand,#outputPage #openOut{display:none}
+
+/* dark hero stage */
+.stage{--pane-bg:#0A1020;--accent-soft:#8FA8FF;--grid:rgba(255,255,255,.045);color:var(--band-fg);background:radial-gradient(900px 420px at 85% -10%,rgba(47,91,255,.32),transparent 60%),linear-gradient(var(--grid) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/48px 48px,var(--band-bg)}
+.stage .intro{padding-top:64px;padding-bottom:28px}
+.stage .intro h1{font-size:clamp(38px,6vw,68px)}
+.stage .eyebrow{color:var(--amber)}
+.hl{color:var(--accent-soft)}
+.term{font-family:var(--mono);font-size:clamp(16px,2.2vw,22px);color:var(--band-fg)}
+.term #typed{color:var(--amber)}
+.caret{display:inline-block;width:.55em;height:1.1em;margin-left:2px;vertical-align:-.15em;background:var(--amber)}
+.stage .lede{color:var(--band-muted)}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}
+.btn.amber{background:var(--amber);color:#101828}
+.btn.light{background:transparent;color:var(--band-fg);border-color:var(--band-muted)}
+.stage .chips .lbl{color:var(--band-muted)}
+.stage .chip{background:transparent;border-color:var(--code-line);color:var(--band-fg)}
+.stage .chip[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#101828}
+.stage .task{background:#1B2750;color:var(--band-fg)}
+.stage .task b{color:var(--amber)}
+.stage .hint{color:var(--band-muted)}
+.stage .pane{background:var(--pane-bg);border:1px solid var(--code-line);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:no-preference){
+  .caret{animation:blink 1s steps(1) infinite}
+  .card,.proj{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+  .card:hover,.proj:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 30px rgba(16,24,40,.14)}
+  .proj .cmd::after{content:"_";animation:blink 1s steps(1) infinite}
+}
+</style>
+
+<div id="site">
+<div class="nav"><div class="wrap">
+  <div class="logo">CodeNest<span>_</span> Academy</div>
+  <div class="links">
+    <a href="#playground">Playground</a>
+    <a href="#courses">Courses</a>
+    <a href="#path">Learning path</a>
+    <a href="#projects">Projects</a>
+    <a href="#placements">Placements</a>
+    <a class="btn" href="#contact">Book free demo</a>
+  </div>
+</div></div>
+
+<div class="stage">
+<div class="intro" id="playground"><div class="wrap">
+  <div class="eyebrow">Free coding playground</div>
+  <h1>Type code. <span class="hl">Watch it come alive.</span></h1>
+  <div class="term">$ learn --track <span id="typed">full-stack</span><span class="caret"></span></div>
+  <p class="lede">Write HTML in the editor and your web page appears below as you type. Switch to a JavaScript example to print output, or take a challenge and the playground checks your answer.</p>
+  <div class="ctas"><a class="btn amber" href="#courses">Explore courses</a><a class="btn light" href="#contact">Book free demo</a></div>
+</div></div>
+
+<div class="pg"><div class="wrap">
+  <div class="chips" id="chips" role="group" aria-label="Examples and challenges"></div>
+  <div class="task" id="task" hidden><b>Challenge</b><span id="taskText"></span></div>
+  <div class="panes wide" id="panes">
+    <div class="pane">
+      <div class="bar">
+        <span id="fileName">main.js</span>
+        <span class="acts">
+          <button class="reset" id="clear" type="button">Clear</button>
+          <button class="reset" id="reset" type="button">Reset</button>
+          <button class="run" id="run" type="button">Run &#9654;</button>
+        </span>
+      </div>
+      <div class="edit">
+        <pre id="gutter" aria-hidden="true"></pre>
+        <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Code editor"></textarea>
+      </div>
+    </div>
+    <div class="pane">
+      <div class="bar"><span id="paneName">Output</span><span class="acts"><span id="status">ready</span><button class="reset" id="openOut" type="button">Output page</button><button class="reset" id="expand" type="button">Side by side</button></span></div>
+      <div id="out" role="log" aria-live="polite"></div>
+      <iframe id="preview" title="Web page preview" sandbox="allow-scripts" hidden></iframe>
+      <div class="verdict info" id="verdict">Press Run or Ctrl + Enter.</div>
+    </div>
+  </div>
+  <p class="hint">In JavaScript, use console.log() to print. JavaScript stops after 3 seconds, so an endless loop will not freeze the page. Code that starts with &lt; is shown as a web page.</p>
+</div></div>
+</div>
+
+<div class="band" id="courses"><div class="wrap">
+  <div class="sechead">
+    <h2 class="h2">Six tracks. Pick the one that fits your goal.</h2>
+    <p class="lede">Every course starts from zero, runs on small batches, and ends with a capstone you present to the mentors.</p>
+  </div>
+  <div class="grid g-courses">
+    <div class="card"><div class="tag">FULL STACK</div><h3>Full Stack Web Development</h3><p>HTML, CSS, JavaScript, React, Node and databases, learned through six deployed projects.</p><div class="tools">React · Node.js · MongoDB · Git</div><div class="foot"><span>6 months · Online or classroom</span><span>Fee: [YOUR FEE]</span></div></div>
+    <div class="card"><div class="tag">DATA</div><h3>Python and Data Science</h3><p>Python, SQL and pandas, applied to messy real datasets and finished with a dashboard.</p><div class="tools">Python · SQL · pandas · Power BI</div><div class="foot"><span>5 months · Online or classroom</span><span>Fee: [YOUR FEE]</span></div></div>
+    <div class="card"><div class="tag">MOBILE</div><h3>Flutter App Development</h3><p>One codebase for Android and iOS, from first layout to a Play Store release.</p><div class="tools">Dart · Flutter · Firebase · REST</div><div class="foot"><span>4 months · Online or classroom</span><span>Fee: [YOUR FEE]</span></div></div>
+    <div class="card"><div class="tag">AI</div><h3>Machine Learning and AI</h3><p>Train, evaluate and deploy models, then demo a capstone to a panel of mentors.</p><div class="tools">scikit-learn · PyTorch · FastAPI · Docker</div><div class="foot"><span>6 months · Online or classroom</span><span>Fee: [YOUR FEE]</span></div></div>
+    <div class="card"><div class="tag">SECURITY</div><h3>Cyber Security</h3><p>Networks, web vulnerabilities and incident response, practised in a legal lab environment.</p><div class="tools">Linux · Burp Suite · Wireshark · Nmap</div><div class="foot"><span>5 months · Online or classroom</span><span>Fee: [YOUR FEE]</span></div></div>
+    <div class="card"><div class="tag">DEVOPS</div><h3>DevOps and Cloud</h3><p>Pipelines, containers and cloud deployment for the apps you already build.</p><div class="tools">Docker · GitHub Actions · AWS · Linux</div><div class="foot"><span>4 months · Online or classroom</span><span>Fee: [YOUR FEE]</span></div></div>
+  </div>
+</div></div>
+
+<div class="band path-band" id="path"><div class="wrap">
+  <div class="sechead">
+    <h2 class="h2">What your 24 weeks look like</h2>
+    <p class="lede">The full-stack track, week by week. Other tracks follow the same rhythm with their own tools.</p>
+  </div>
+  <div class="grid g-path">
+    <div class="step"><div class="top"><span>01</span><span>Weeks 1-4</span></div><h3>Foundations</h3><p>Logic, one language, Git and the terminal. You write small programs every day.</p></div>
+    <div class="step"><div class="top"><span>02</span><span>Weeks 5-12</span></div><h3>Core skills</h3><p>Frameworks, databases and APIs, taught with weekly code reviews.</p></div>
+    <div class="step"><div class="top"><span>03</span><span>Weeks 13-20</span></div><h3>Real projects</h3><p>Teams of three ship a product with users, issues and deadlines.</p></div>
+    <div class="step"><div class="top"><span>04</span><span>Weeks 21-24</span></div><h3>Placement prep</h3><p>Mock interviews, resume and portfolio work, plus data structures practice.</p></div>
+  </div>
+</div></div>
+
+<div class="band" id="projects"><div class="wrap">
+  <div class="sechead">
+    <h2 class="h2">Projects learners build here</h2>
+    <p class="lede">Each one has a live link, a repository and a short write-up, ready for your portfolio.</p>
+  </div>
+  <div class="grid g-proj">
+    <div class="proj"><div class="cmd">$ clinicq --run</div><div class="body"><p>Appointment booking for small clinics, with SMS reminders.</p><div class="stack">React · Node · MongoDB</div></div></div>
+    <div class="proj"><div class="cmd">$ pricewatch --alert</div><div class="body"><p>Tracks product prices and alerts you when they drop.</p><div class="stack">Python · BeautifulSoup · SQLite</div></div></div>
+    <div class="proj"><div class="cmd">$ tripsplit --settle</div><div class="body"><p>Splits group trip expenses and shows who owes whom.</p><div class="stack">Flutter · Firebase</div></div></div>
+    <div class="proj"><div class="cmd">$ loglens --scan</div><div class="body"><p>Reads server logs and flags suspicious login patterns.</p><div class="stack">Python · pandas · Streamlit</div></div></div>
+  </div>
+</div></div>
+
+<div class="dark" id="placements"><div class="wrap"><div class="cols">
+  <div class="left">
+    <h2 class="h2">Interview-ready before the course ends</h2>
+    <div class="perk"><b>Resume and GitHub review</b><span>A mentor goes through your profile line by line before you apply.</span></div>
+    <div class="perk"><b>Weekly mock interviews</b><span>Technical and HR rounds with feedback you can act on the same week.</span></div>
+    <div class="perk"><b>Referrals to hiring partners</b><span>Introductions to companies that hire from the academy: [PARTNER NAMES].</span></div>
+    <div class="perk"><b>Timed coding assessments</b><span>Practice in the same format most recruiters use to screen freshers.</span></div>
+  </div>
+  <div class="right">
+    <div class="stat"><div class="n">[NUMBER]</div><div class="t">learners trained so far</div></div>
+    <div class="stat"><div class="n">[NUMBER]</div><div class="t">hiring partners</div></div>
+    <div class="stat"><div class="n">[NUMBER]</div><div class="t">learners placed in the last batch</div></div>
+  </div>
+</div></div></div>
+
+<div class="band contact" id="contact"><div class="wrap"><div class="cols">
+  <div class="box">
+    <h2 class="h2">Try a free demo class</h2>
+    <p class="lede">Sit in on a live session, meet the mentor and ask anything about the syllabus, fees and placement support. No payment needed.</p>
+    <div><a class="btn" href="#playground">Back to the playground</a></div>
+  </div>
+  <div class="info">
+    <span>Phone: [YOUR PHONE]</span>
+    <span>Email: [YOUR EMAIL]</span>
+    <span>Address: [YOUR ADDRESS]</span>
+    <span>Next batch starts: [BATCH DATE]</span>
+  </div>
+</div></div></div>
+
+<div class="foot-bar"><div class="wrap">
+  <div class="logo" style="font-size:18px;color:var(--ink)">CodeNest<span>_</span> Academy</div>
+  <div class="links"><a href="#courses">Courses</a><a href="#path">Learning path</a><a href="#projects">Projects</a><a href="#placements">Placements</a></div>
+  <div>&copy; [YEAR] CodeNest Academy</div>
+</div></div>
+
+</div>
+
+<div id="outputPage" hidden>
+  <div class="wrap">
+    <div class="otop">
+      <button class="btn ghost" id="backBtn" type="button">&larr; Back to editor</button>
+      <span class="otitle">Output page</span>
+      <button class="btn" id="runAgain" type="button">Run again</button>
+    </div>
+    <div id="outHost"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var PRESETS = [
+    { id: 'html', label: 'HTML page', lang: 'html', code: ['<h1 id="title">Hello, CodeNest!</h1>', '<p>Edit this page and the preview updates as you type.</p>', '<button id="btn">Click me</button>', '', '<style>', '  body { font-family: sans-serif; padding: 16px; }', '  h1 { color: #2F5BFF; }', '</style>', '', '<script>', '  document.getElementById("btn").onclick = function () {', '    document.getElementById("title").textContent = "You clicked it!";', '  };', '<\/script>'].join('\n') },
+    { id: 'card', label: 'Profile card', lang: 'html', code: ['<div class="card">', '  <h2>Anu Mathew</h2>', '  <p>Learning web development at CodeNest.</p>', '  <a href="#">View portfolio</a>', '</div>', '', '<style>', '  body { font-family: sans-serif; background: #f4f6fa; padding: 24px; }', '  .card { max-width: 280px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.12); }', '  a { color: #2F5BFF; }', '</style>'].join('\n') },
+    { id: 'hello', label: 'JS Hello world', code: ['// Your first program', 'console.log("Hello, CodeNest!");', '', 'const name = "Anu";', 'console.log("Welcome, " + name);'].join('\n') },
+    { id: 'loops', label: 'JS Loops', code: ['// A times table', 'for (let i = 1; i <= 5; i++) {', '  console.log("7 x " + i + " = " + 7 * i);', '}'].join('\n') },
+    { id: 'functions', label: 'JS Functions', code: ['function square(n) {', '  return n * n;', '}', '', 'console.log(square(9));', 'console.log([1, 2, 3, 4].map(square));'].join('\n') },
+    { id: 'arrays', label: 'JS Arrays', code: ['const marks = [72, 85, 90, 64, 78];', 'const total = marks.reduce((a, b) => a + b, 0);', '', 'console.log("Total:", total);', 'console.log("Average:", total / marks.length);', 'console.log("Highest:", Math.max(...marks));'].join('\n') },
+    { id: 'c1', label: 'Challenge 1', challenge: true, task: 'Print the numbers 1 to 5, one per line.', expected: ['1', '2', '3', '4', '5'], code: '// Print 1 to 5, one number per line\n' },
+    { id: 'c2', label: 'Challenge 2', challenge: true, task: 'Print the sum of all the numbers from 1 to 100.', expected: ['5050'], code: '// Print the sum of 1 to 100\n' },
+    { id: 'c3', label: 'Challenge 3', challenge: true, task: 'FizzBuzz: for 1 to 15 print Fizz for multiples of 3, Buzz for multiples of 5, FizzBuzz for both, otherwise the number. One per line.', expected: ['1', '2', 'Fizz', '4', 'Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz', '11', 'Fizz', '13', '14', 'FizzBuzz'], code: '// FizzBuzz from 1 to 15\n' }
+  ];
+
+  var WORKER_SRC = [
+    'self.onmessage = async function (e) {',
+    '  var out = [];',
+    '  var fmt = function (v) {',
+    '    if (typeof v === "string") return v;',
+    '    if (typeof v === "undefined") return "undefined";',
+    '    if (typeof v === "function") return String(v);',
+    '    try { return JSON.stringify(v); } catch (_) { return String(v); }',
+    '  };',
+    '  var push = function (t) { return function () { out.push({ t: t, s: Array.prototype.map.call(arguments, fmt).join(" ") }); }; };',
+    '  var con = { log: push("log"), info: push("log"), warn: push("log"), error: push("err") };',
+    '  try {',
+    '    var AF = Object.getPrototypeOf(async function () {}).constructor;',
+    '    await new AF("console", e.data)(con);',
+    '  } catch (err) {',
+    '    if (err instanceof EvalError) { out.push({ t: "err", s: "This viewer does not allow running code." }); }',
+    '    else { out.push({ t: "err", s: (err && err.name ? err.name + ": " : "") + (err && err.message ? err.message : String(err)) }); }',
+    '  }',
+    '  self.postMessage(out);',
+    '};'
+  ].join('\n');
+
+  var $ = function (id) { return document.getElementById(id); };
+  var ed = $('code'), gutter = $('gutter'), out = $('out'), verdict = $('verdict'), status = $('status');
+  var chips = $('chips'), task = $('task'), taskText = $('taskText'), runBtn = $('run');
+  var current = PRESETS[0];
+  var mode = 'js';
+  var preview = $('preview'), fileName = $('fileName');
+
+  function setMode(m) {
+    mode = m;
+    fileName.textContent = m === 'html' ? 'index.html' : 'main.js';
+    $('paneName').textContent = m === 'html' ? 'Preview' : 'Output';
+    out.hidden = m === 'html';
+    preview.hidden = m !== 'html';
+    status.textContent = 'ready';
+  }
+
+  function setGutter() {
+    var n = ed.value.split('\n').length, s = [];
+    for (var i = 1; i <= n; i++) s.push(i);
+    gutter.textContent = s.join('\n');
+    gutter.scrollTop = ed.scrollTop;
+  }
+
+  function setVerdict(cls, text) { verdict.className = 'verdict ' + cls; verdict.textContent = text; }
+
+  function showEmpty() {
+    out.textContent = '';
+    var d = document.createElement('div'); d.className = 'empty'; d.textContent = 'Your output appears here.';
+    out.appendChild(d);
+  }
+
+  function load(p) {
+    current = p;
+    setMode(p.lang || 'js');
+    preview.srcdoc = p.lang === 'html' ? p.code : '';
+    ed.value = p.code;
+    setGutter();
+    showEmpty();
+    status.textContent = 'ready';
+    if (p.task) { task.hidden = false; taskText.textContent = p.task; setVerdict('info', 'Run your code to check it against the expected output.'); }
+    else { task.hidden = true; setVerdict('info', p.lang === 'html' ? 'Edit the code and the page updates as you type.' : 'Press Run or Ctrl + Enter.'); }
+    var btns = chips.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-id') === p.id ? 'true' : 'false');
+  }
+
+  function buildChips() {
+    var l = document.createElement('span'); l.className = 'lbl'; l.textContent = 'Try:'; chips.appendChild(l);
+    PRESETS.forEach(function (p) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip' + (p.challenge ? ' ch' : '');
+      b.textContent = p.label; b.setAttribute('data-id', p.id); b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () { load(p); });
+      chips.appendChild(b);
+    });
+  }
+
+  function finish(lines, t0) {
+    runBtn.disabled = false;
+    out.textContent = '';
+    var printed = [];
+    if (!lines.length) {
+      var d0 = document.createElement('div'); d0.className = 'empty'; d0.textContent = 'No output. Use console.log() to print a value.'; out.appendChild(d0);
+    }
+    lines.forEach(function (l) {
+      var d = document.createElement('div');
+      if (l.t === 'err') d.className = 'err';
+      d.textContent = l.s; out.appendChild(d);
+      if (l.t === 'log') printed = printed.concat(String(l.s).split('\n'));
+    });
+    var hadErr = lines.some(function (l) { return l.t === 'err'; });
+    status.textContent = 'ran in ' + Math.max(1, Math.round(performance.now() - t0)) + ' ms';
+    if (current.expected) {
+      var ok = !hadErr && printed.join('\n').trim() === current.expected.join('\n');
+      if (ok) setVerdict('ok', 'Correct. Your output matches the expected output.');
+      else if (hadErr) setVerdict('bad', 'Fix the error above, then run again.');
+      else setVerdict('bad', 'Not yet. Expected ' + current.expected.length + ' line' + (current.expected.length === 1 ? '' : 's') + ', starting with: ' + current.expected.slice(0, 3).join(', '));
+    } else if (hadErr) { setVerdict('bad', 'Your code has an error. Read the message above.'); }
+    else { setVerdict('info', 'Done.'); }
+  }
+
+  function run() {
+    if (current.lang === 'html' || /^\s*</.test(ed.value)) {
+      var auto = mode !== 'html';
+      setMode('html');
+      preview.srcdoc = ed.value;
+      status.textContent = 'page updated';
+      setVerdict('info', auto ? 'That looks like HTML, so it is shown here as a web page.' : 'Page updated.');
+      return;
+    }
+    if (mode === 'html') setMode('js');
+    var t0 = performance.now();
+    runBtn.disabled = true; status.textContent = 'running...';
+    var url, w;
+    try {
+      url = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }));
+      w = new Worker(url);
+    } catch (e) { finish([{ t: 'err', s: 'This viewer does not allow running code.' }], t0); return; }
+    var done = false;
+    var end = function (lines) {
+      if (done) return; done = true; clearTimeout(timer); w.terminate(); URL.revokeObjectURL(url); finish(lines, t0);
+    };
+    var timer = setTimeout(function () { end([{ t: 'err', s: 'Stopped: your code ran for more than 3 seconds. Check for an endless loop.' }]); }, 3000);
+    w.onmessage = function (e) { end(e.data); };
+    w.onerror = function (e) { end([{ t: 'err', s: e.message || 'The code runner failed.' }]); };
+    w.postMessage(ed.value);
+  }
+
+  var liveTimer;
+  ed.addEventListener('input', function () {
+    setGutter();
+    if (mode === 'html') { clearTimeout(liveTimer); liveTimer = setTimeout(run, 400); }
+  });
+  ed.addEventListener('scroll', function () { gutter.scrollTop = ed.scrollTop; });
+  ed.addEventListener('keydown', function (e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      var s = ed.selectionStart, t = ed.selectionEnd;
+      ed.value = ed.value.slice(0, s) + '  ' + ed.value.slice(t);
+      ed.selectionStart = ed.selectionEnd = s + 2;
+      setGutter();
+    } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault(); run();
+    }
+  });
+  runBtn.addEventListener('click', run);
+  $('expand').addEventListener('click', function () {
+    var wide = $('panes').classList.toggle('wide');
+    $('expand').textContent = wide ? 'Side by side' : 'Stack';
+  });
+  $('reset').addEventListener('click', function () { load(current); });
+  $('clear').addEventListener('click', function () {
+    ed.value = '';
+    setGutter();
+    if (mode === 'html') { preview.srcdoc = ''; status.textContent = 'cleared'; }
+    else { showEmpty(); status.textContent = 'ready'; }
+    setVerdict('info', 'Editor cleared. Type your own code.');
+    ed.focus();
+  });
+
+  buildChips();
+  load(PRESETS[0]);
+
+  var site = $('site'), opage = $('outputPage'), host = $('outHost'), panes = $('panes');
+  var outPane = preview.parentNode;
+  function route() {
+    if (location.hash === '#output') {
+      site.hidden = true;
+      opage.hidden = false;
+      host.appendChild(outPane);
+      window.scrollTo(0, 0);
+    } else {
+      opage.hidden = true;
+      site.hidden = false;
+      if (outPane.parentNode !== panes) panes.appendChild(outPane);
+      var target = $('playground');
+      if (target && location.hash === '#playground') target.scrollIntoView();
+    }
+  }
+  window.addEventListener('hashchange', route);
+  $('openOut').addEventListener('click', function () { location.hash = 'output'; });
+  $('backBtn').addEventListener('click', function () { location.hash = 'playground'; });
+  $('runAgain').addEventListener('click', run);
+  route();
+
+  var tracks = ['full-stack', 'python', 'flutter', 'machine-learning', 'cyber-security', 'devops'];
+  var typed = $('typed');
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!still) {
+    var ti = 0, ci = tracks[0].length, deleting = true;
+    var tick = function () {
+      var word = tracks[ti], delay = deleting ? 45 : 95;
+      ci += deleting ? -1 : 1;
+      typed.textContent = word.slice(0, ci);
+      if (!deleting && ci === word.length) { deleting = true; delay = 1500; }
+      else if (deleting && ci === 0) { deleting = false; ti = (ti + 1) % tracks.length; delay = 350; }
+      setTimeout(tick, delay);
+    };
+    setTimeout(tick, 1800);
+  }
+})();
+</script>
+
+</body></html>
